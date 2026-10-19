@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "verify:db": "tsx scripts/verify-db.ts",
-    "test:api": "tsx scripts/test-api.ts"
+    "test:api": "tsx scripts/test-api.ts",
+    "seed:demo": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
