@@ -142,7 +142,7 @@ export const TripModal: React.FC<TripModalProps> = ({
           disabled={isSubmitting}
         />
 
-        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
           <Button variant="outline" size="sm" type="button" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>

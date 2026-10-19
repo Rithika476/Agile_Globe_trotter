@@ -75,8 +75,8 @@ export const ItineraryTab: React.FC<ItineraryTabProps> = ({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">Day-by-Day Schedule</h3>
-          <p className="text-xs text-slate-500">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Day-by-Day Schedule</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Schedule activities, tours, dining, and transit for each day of your journey.
           </p>
         </div>
@@ -94,25 +94,25 @@ export const ItineraryTab: React.FC<ItineraryTabProps> = ({
           return (
             <Card key={day._id} className="overflow-hidden border border-slate-200">
               {/* Day Header Bar */}
-              <div className="bg-slate-50/90 px-5 py-3.5 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="bg-slate-50/90 dark:bg-slate-800/60 px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div className="flex items-center space-x-3">
                   <div className="px-2.5 py-1 bg-teal-600 text-white rounded-lg text-xs font-bold uppercase tracking-wider">
                     Day {dayIndex + 1}
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                       <span>{formatDate(day.date)}</span>
-                      <span className="text-slate-400 font-normal">|</span>
-                      <span className="text-teal-700 font-semibold">{destCity}{destCountry}</span>
+                      <span className="text-slate-400 dark:text-slate-600 font-normal">|</span>
+                      <span className="text-teal-700 dark:text-teal-400 font-semibold">{destCity}{destCountry}</span>
                     </h4>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between sm:justify-end space-x-4">
-                  <div className="flex items-center space-x-1.5 text-xs text-slate-600">
-                    <DollarSign className="w-3.5 h-3.5 text-slate-400" />
+                  <div className="flex items-center space-x-1.5 text-xs text-slate-600 dark:text-slate-400">
+                    <DollarSign className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                     <span>Day Total:</span>
-                    <span className="font-bold text-slate-900">{formatCurrency(dayTotalCost)}</span>
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(dayTotalCost)}</span>
                   </div>
 
                   <Button
@@ -133,11 +133,11 @@ export const ItineraryTab: React.FC<ItineraryTabProps> = ({
               {/* Activities on this day */}
               <div className="p-5">
                 {!day.activities || day.activities.length === 0 ? (
-                  <p className="text-xs text-slate-400 italic text-center py-4">
+                  <p className="text-xs text-slate-400 dark:text-slate-500 italic text-center py-4">
                     No activities planned for this day yet. Click "Add Activity" to plan your morning, afternoon, or evening.
                   </p>
                 ) : (
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
                     {day.activities.map((act) => {
                       const hasTimes = act.startTime || act.endTime;
                       return (
@@ -151,20 +151,20 @@ export const ItineraryTab: React.FC<ItineraryTabProps> = ({
                             </Badge>
 
                             <div className="space-y-1">
-                              <h5 className="text-sm font-bold text-slate-900">
+                              <h5 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                                 {act.title}
                               </h5>
 
                               {act.description && (
-                                <p className="text-xs text-slate-500 leading-relaxed max-w-xl">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-xl">
                                   {act.description}
                                 </p>
                               )}
 
-                              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 pt-0.5">
+                              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 dark:text-slate-500 pt-0.5">
                                 {hasTimes && (
-                                  <span className="flex items-center gap-1 text-slate-600">
-                                    <Clock className="w-3.5 h-3.5 text-teal-600" />
+                                  <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
+                                    <Clock className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                                     {act.startTime ? formatTime(act.startTime) : ''}
                                     {act.startTime && act.endTime ? ' — ' : ''}
                                     {act.endTime ? formatTime(act.endTime) : ''}
@@ -173,7 +173,7 @@ export const ItineraryTab: React.FC<ItineraryTabProps> = ({
 
                                 {act.location && (
                                   <span className="flex items-center gap-1">
-                                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                                    <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                                     {act.location}
                                   </span>
                                 )}
@@ -183,7 +183,7 @@ export const ItineraryTab: React.FC<ItineraryTabProps> = ({
 
                           {/* Cost and Actions */}
                           <div className="flex items-center justify-between sm:justify-end space-x-4 self-end sm:self-center shrink-0">
-                            <span className="text-sm font-bold text-slate-800">
+                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
                               {formatCurrency(act.estimatedCost)}
                             </span>
 
@@ -194,14 +194,14 @@ export const ItineraryTab: React.FC<ItineraryTabProps> = ({
                                   setActivityToEdit(act);
                                   setIsActivityModalOpen(true);
                                 }}
-                                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                                className="p-1.5 text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
                                 title="Edit Activity"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => setActivityToDelete(act)}
-                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                                className="p-1.5 text-slate-400 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition"
                                 title="Delete Activity"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />

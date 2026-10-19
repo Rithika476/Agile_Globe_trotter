@@ -30,12 +30,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     <Modal isOpen={isOpen} onClose={onCancel} title={title} maxWidth="sm">
       <div className="space-y-4">
         <div className="flex items-start space-x-3">
-          <div className="p-2 bg-rose-100 text-rose-600 rounded-xl shrink-0">
+          <div className="p-2 bg-rose-100 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 rounded-xl shrink-0">
             <AlertTriangle className="w-5 h-5" />
           </div>
-          <p className="text-sm text-slate-600 leading-relaxed">{message}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{message}</p>
         </div>
-        <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100">
+        <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 dark:border-slate-800">
           <Button variant="outline" size="sm" onClick={onCancel} disabled={isLoading}>
             {cancelText}
           </Button>

@@ -76,8 +76,8 @@ export const DestinationsTab: React.FC<DestinationsTabProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">Trip Destinations</h3>
-          <p className="text-xs text-slate-500">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Trip Destinations</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Define your travel stops. Itinerary days are generated automatically for each date range.
           </p>
         </div>
@@ -124,20 +124,20 @@ export const DestinationsTab: React.FC<DestinationsTabProps> = ({
                 className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
               >
                 <div className="flex items-start sm:items-center space-x-3.5">
-                  <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-700 font-bold flex items-center justify-center text-xs shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 font-bold flex items-center justify-center text-xs shrink-0">
                     {idx + 1}
                   </div>
                   <div>
-                    <h4 className="text-base font-bold text-slate-900 flex items-center gap-1.5">
+                    <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                       <span>{dest.city}</span>
-                      <span className="text-xs font-medium text-slate-400">({dest.country})</span>
+                      <span className="text-xs font-medium text-slate-400 dark:text-slate-500">({dest.country})</span>
                     </h4>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-teal-600" />
+                        <Calendar className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                         {formatDate(dest.arrivalDate)} — {formatDate(dest.departureDate)}
                       </span>
-                      <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium text-[11px]">
+                      <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md font-medium text-[11px]">
                         {daysCount} {daysCount === 1 ? 'day' : 'days'}
                       </span>
                     </div>
@@ -145,13 +145,13 @@ export const DestinationsTab: React.FC<DestinationsTabProps> = ({
                 </div>
 
                 {/* Actions: Reorder & Edit/Delete */}
-                <div className="flex items-center justify-end space-x-1.5 self-end sm:self-auto border-t sm:border-t-0 pt-2 sm:pt-0 w-full sm:w-auto">
+                <div className="flex items-center justify-end space-x-1.5 self-end sm:self-auto border-t border-slate-100 dark:border-slate-800 sm:border-t-0 pt-2 sm:pt-0 w-full sm:w-auto">
                   {/* Reorder Buttons */}
-                  <div className="flex items-center space-x-1 mr-2 border-r border-slate-200 pr-2">
+                  <div className="flex items-center space-x-1 mr-2 border-r border-slate-200 dark:border-slate-800 pr-2">
                     <button
                       onClick={() => handleMove(idx, 'up')}
                       disabled={idx === 0 || isReordering}
-                      className="p-1.5 text-slate-400 hover:text-teal-700 hover:bg-slate-100 rounded-lg disabled:opacity-30 disabled:hover:bg-transparent transition"
+                      className="p-1.5 text-slate-400 dark:text-slate-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg disabled:opacity-30 disabled:hover:bg-transparent transition"
                       title="Move Up"
                     >
                       <ArrowUp className="w-4 h-4" />
@@ -159,7 +159,7 @@ export const DestinationsTab: React.FC<DestinationsTabProps> = ({
                     <button
                       onClick={() => handleMove(idx, 'down')}
                       disabled={idx === destinations.length - 1 || isReordering}
-                      className="p-1.5 text-slate-400 hover:text-teal-700 hover:bg-slate-100 rounded-lg disabled:opacity-30 disabled:hover:bg-transparent transition"
+                      className="p-1.5 text-slate-400 dark:text-slate-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg disabled:opacity-30 disabled:hover:bg-transparent transition"
                       title="Move Down"
                     >
                       <ArrowDown className="w-4 h-4" />
@@ -171,14 +171,14 @@ export const DestinationsTab: React.FC<DestinationsTabProps> = ({
                       setDestinationToEdit(dest);
                       setIsModalOpen(true);
                     }}
-                    className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                    className="p-1.5 text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
                     title="Edit Destination"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setDestinationToDelete(dest)}
-                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                    className="p-1.5 text-slate-400 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition"
                     title="Delete Destination"
                   >
                     <Trash2 className="w-4 h-4" />

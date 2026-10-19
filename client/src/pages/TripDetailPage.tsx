@@ -154,45 +154,45 @@ export const TripDetailPage: React.FC = () => {
     <AppLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Top Breadcrumb */}
-        <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500">
+        <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
           <Link
             to="/dashboard"
-            className="flex items-center space-x-1 hover:text-teal-600 transition"
+            className="flex items-center space-x-1 hover:text-teal-600 dark:hover:text-teal-400 transition"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>All Trips</span>
           </Link>
           <span>/</span>
-          <span className="text-slate-800 truncate max-w-xs">{trip.title}</span>
+          <span className="text-slate-800 dark:text-slate-200 truncate max-w-xs">{trip.title}</span>
         </div>
 
         {/* Trip Header Banner */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 sm:p-8">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-6 sm:p-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="space-y-3">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
                 {trip.title}
               </h1>
 
-              <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-sm text-slate-600">
-                <span className="flex items-center gap-1.5 font-medium text-slate-700 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200/60">
-                  <Calendar className="w-4 h-4 text-teal-600" />
+              <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-sm text-slate-600 dark:text-slate-400">
+                <span className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200/60 dark:border-slate-700">
+                  <Calendar className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                   {formatDate(trip.startDate)} — {formatDate(trip.endDate)}
-                  <span className="text-xs text-teal-700 font-semibold bg-teal-50 px-2 py-0.5 rounded ml-1">
+                  <span className="text-xs text-teal-700 dark:text-teal-300 font-semibold bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded ml-1">
                     {duration} {duration === 1 ? 'day' : 'days'}
                   </span>
                 </span>
 
-                <span className="flex items-center gap-1.5 font-medium text-slate-700 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200/60">
-                  <DollarSign className="w-4 h-4 text-amber-600" />
+                <span className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200/60 dark:border-slate-700">
+                  <DollarSign className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   Target Budget:{' '}
-                  <strong className="text-slate-900">
+                  <strong className="text-slate-900 dark:text-slate-100">
                     {formatCurrency(trip.estimatedBudget || 0)}
                   </strong>
                 </span>
 
-                <span className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                <span className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                   {trip.destinations.length}{' '}
                   {trip.destinations.length === 1 ? 'destination' : 'destinations'}
                 </span>
@@ -222,7 +222,7 @@ export const TripDetailPage: React.FC = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="border-b border-slate-200 bg-white rounded-t-xl px-2 pt-2 flex space-x-1 sm:space-x-2 overflow-x-auto scrollbar-none shadow-sm">
+        <div className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-t-xl px-2 pt-2 flex space-x-1 sm:space-x-2 overflow-x-auto scrollbar-none shadow-sm">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
@@ -232,16 +232,16 @@ export const TripDetailPage: React.FC = () => {
                 onClick={() => setActiveTab(tab.key)}
                 className={`flex items-center space-x-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm whitespace-nowrap transition-all ${
                   isActive
-                    ? 'border-teal-600 text-teal-700 bg-teal-50/50 rounded-t-lg'
-                    : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+                    ? 'border-teal-600 text-teal-700 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-950/40 rounded-t-lg'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-teal-600' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-teal-600 dark:text-teal-400' : 'text-slate-400 dark:text-slate-500'}`} />
                 <span>{tab.label}</span>
                 {tab.count !== undefined && (
                   <span
                     className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                      isActive ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-600'
+                      isActive ? 'bg-teal-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     {tab.count}

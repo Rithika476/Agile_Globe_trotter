@@ -130,7 +130,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <Alert type="error" message={error} />}
 
-        <div className="text-xs font-semibold text-teal-700 bg-teal-50 px-3 py-1.5 rounded-lg inline-block">
+        <div className="text-xs font-semibold text-teal-700 bg-teal-50 dark:bg-teal-950/60 dark:text-teal-300 dark:border dark:border-teal-800/50 px-3 py-1.5 rounded-lg inline-block">
           Scheduled for: {formatDate(dayDate)}
         </div>
 
@@ -198,7 +198,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
           disabled={isSubmitting}
         />
 
-        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
           <Button variant="outline" size="sm" type="button" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>

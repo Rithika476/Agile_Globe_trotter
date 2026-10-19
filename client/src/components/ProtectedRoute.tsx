@@ -9,8 +9,8 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Spinner size="lg" className="text-teal-600" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <Spinner size="lg" className="text-teal-600 dark:text-teal-400" />
       </div>
     );
   }
@@ -27,8 +27,8 @@ export const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ child
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Spinner size="lg" className="text-teal-600" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <Spinner size="lg" className="text-teal-600 dark:text-teal-400" />
       </div>
     );
   }

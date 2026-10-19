@@ -37,28 +37,29 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {/* Toast Render Container */}
       <div className="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 max-w-sm w-full pointer-events-none">
         {toasts.map((toast) => {
-          let bg = 'bg-slate-800 text-white';
+          let bg = 'bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/80';
           let Icon = Info;
           if (toast.type === 'success') {
-            bg = 'bg-emerald-600 text-white';
+            bg = 'bg-emerald-600 dark:bg-emerald-700 text-white border border-emerald-500/50';
             Icon = CheckCircle2;
           } else if (toast.type === 'error') {
-            bg = 'bg-rose-600 text-white';
+            bg = 'bg-rose-600 dark:bg-rose-700 text-white border border-rose-500/50';
             Icon = AlertCircle;
           }
 
           return (
             <div
               key={toast.id}
-              className={`pointer-events-auto flex items-center justify-between p-3.5 rounded-xl shadow-lg transition-all transform duration-200 ${bg}`}
+              className={`pointer-events-auto flex items-center justify-between p-3.5 rounded-xl shadow-xl transition-all transform duration-200 backdrop-blur-xs ${bg}`}
             >
               <div className="flex items-center space-x-2.5">
-                <Icon className="w-5 h-5 flex-shrink-0" />
+                <Icon className="w-5 h-5 shrink-0" />
                 <span className="text-sm font-medium">{toast.message}</span>
               </div>
               <button
                 onClick={() => removeToast(toast.id)}
                 className="ml-3 p-1 rounded-md hover:bg-black/20 text-white/80 hover:text-white transition"
+                aria-label="Dismiss toast"
               >
                 <X className="w-4 h-4" />
               </button>

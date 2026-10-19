@@ -157,11 +157,11 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
           />
         </div>
 
-        <p className="text-[11px] text-slate-400">
+        <p className="text-[11px] text-slate-400 dark:text-slate-500">
           Trip window: {formatDate(tripStartDate)} — {formatDate(tripEndDate)}
         </p>
 
-        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
           <Button variant="outline" size="sm" type="button" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>

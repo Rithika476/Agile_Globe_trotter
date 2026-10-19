@@ -91,24 +91,24 @@ export const ProfilePage: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Page Title */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
             Account & Profile
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Manage your personal travel planner account credentials and preferences.
           </p>
         </div>
 
         {/* Account Details Card */}
         <Card className="p-6">
-          <div className="flex items-center space-x-4 pb-6 border-b border-slate-100">
+          <div className="flex items-center space-x-4 pb-6 border-b border-slate-100 dark:border-slate-800">
             <div className="w-16 h-16 rounded-2xl bg-teal-600 text-white flex items-center justify-center font-black text-2xl shadow-md shadow-teal-600/20">
               {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">{user?.name}</h2>
-              <div className="flex items-center space-x-2 text-xs text-slate-500 mt-1">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{user?.name}</h2>
+              <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                 <span>{user?.email}</span>
                 {user?.createdAt && (
                   <>
@@ -122,8 +122,8 @@ export const ProfilePage: React.FC = () => {
 
           {/* Edit Name Form */}
           <form onSubmit={handleUpdateName} className="pt-6 space-y-4">
-            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <User className="w-4 h-4 text-teal-600" />
+            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <User className="w-4 h-4 text-teal-600 dark:text-teal-400" />
               <span>Personal Information</span>
             </h3>
 
@@ -172,10 +172,10 @@ export const ProfilePage: React.FC = () => {
         <Card className="p-6">
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div className="flex items-center space-x-2 pb-2">
-              <KeyRound className="w-5 h-5 text-amber-600" />
+              <KeyRound className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               <div>
-                <h3 className="text-base font-bold text-slate-900">Security & Password</h3>
-                <p className="text-xs text-slate-500">
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Security & Password</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Update your password to keep your travel itineraries secure.
                 </p>
               </div>

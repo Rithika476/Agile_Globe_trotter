@@ -14,10 +14,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   action,
 }) => {
   return (
-    <div className="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50">
-      {icon && <div className="inline-flex items-center justify-center p-3 text-slate-400 mb-3">{icon}</div>}
-      <h4 className="text-base font-bold text-slate-800">{title}</h4>
-      <p className="text-sm text-slate-500 max-w-sm mx-auto mt-1 mb-5">{description}</p>
+    <div className="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40">
+      {icon && <div className="inline-flex items-center justify-center p-3 text-slate-400 dark:text-slate-500 mb-3">{icon}</div>}
+      <h4 className="text-base font-bold text-slate-800 dark:text-slate-200">{title}</h4>
+      <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1 mb-5">{description}</p>
       {action && <div>{action}</div>}
     </div>
   );

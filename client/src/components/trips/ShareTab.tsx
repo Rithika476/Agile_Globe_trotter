@@ -102,35 +102,35 @@ export const ShareTab: React.FC<ShareTabProps> = ({ tripId }) => {
     <div className="space-y-6 max-w-2xl">
       {/* Header */}
       <div>
-        <h3 className="text-lg font-bold text-slate-900">Share Itinerary</h3>
-        <p className="text-xs text-slate-500">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Share Itinerary</h3>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Share a clean, read-only itinerary with travel companions or family. Private account details are strictly omitted.
         </p>
       </div>
 
       {/* Newly Created One-Time Token Banner */}
       {newlyCreated && (
-        <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 space-y-4 animate-in fade-in">
+        <div className="bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800/80 rounded-2xl p-6 space-y-4 animate-in fade-in">
           <div className="flex items-start space-x-3">
-            <div className="p-2 bg-amber-200 text-amber-900 rounded-xl shrink-0 mt-0.5">
+            <div className="p-2 bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 rounded-xl shrink-0 mt-0.5">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-amber-900">
+              <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">
                 Your Share Link is Ready (Shown Once)
               </h4>
-              <p className="text-xs text-amber-800 mt-1 leading-relaxed">
+              <p className="text-xs text-amber-800 dark:text-amber-300 mt-1 leading-relaxed">
                 For your security, this raw secret link cannot be viewed again after you navigate away. Copy and save it now.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 bg-white rounded-xl border border-amber-200 p-2">
+          <div className="flex items-center space-x-2 bg-white dark:bg-slate-900 rounded-xl border border-amber-200 dark:border-amber-800/60 p-2">
             <input
               type="text"
               readOnly
               value={fullShareUrl}
-              className="bg-transparent text-xs text-slate-700 w-full focus:outline-none font-mono px-2 select-all"
+              className="bg-transparent text-xs text-slate-700 dark:text-slate-200 w-full focus:outline-none font-mono px-2 select-all"
             />
             <Button
               variant="primary"
@@ -143,13 +143,13 @@ export const ShareTab: React.FC<ShareTabProps> = ({ tripId }) => {
             </Button>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-amber-900 pt-1">
+          <div className="flex items-center justify-between text-xs text-amber-900 dark:text-amber-300 pt-1">
             <span>Permissions: Read-Only</span>
             <a
               href={fullShareUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 font-semibold text-teal-800 hover:underline"
+              className="inline-flex items-center gap-1 font-semibold text-teal-800 dark:text-teal-300 hover:underline"
             >
               <span>Test Public View</span>
               <ExternalLink className="w-3 h-3" />
@@ -165,8 +165,8 @@ export const ShareTab: React.FC<ShareTabProps> = ({ tripId }) => {
             <div
               className={`p-3 rounded-2xl ${
                 shareStatus?.isActive
-                  ? 'bg-emerald-50 text-emerald-700'
-                  : 'bg-slate-100 text-slate-500'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
               }`}
             >
               {shareStatus?.isActive ? <Globe className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
@@ -175,14 +175,14 @@ export const ShareTab: React.FC<ShareTabProps> = ({ tripId }) => {
               <div className="flex items-center space-x-2">
                 <span
                   className={`inline-block w-2.5 h-2.5 rounded-full ${
-                    shareStatus?.isActive ? 'bg-emerald-500' : 'bg-slate-400'
+                    shareStatus?.isActive ? 'bg-emerald-500' : 'bg-slate-400 dark:bg-slate-500'
                   }`}
                 />
-                <h4 className="text-sm font-bold text-slate-900">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   {shareStatus?.isActive ? 'Public Link Active' : 'Trip is Private'}
                 </h4>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 {shareStatus?.isActive
                   ? `Active since ${formatDate(shareStatus.createdAt)}`
                   : 'Only you can view and edit this trip.'}
@@ -191,7 +191,7 @@ export const ShareTab: React.FC<ShareTabProps> = ({ tripId }) => {
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-3">
           <Button
             variant="primary"
             onClick={handleGenerateLink}
@@ -205,7 +205,7 @@ export const ShareTab: React.FC<ShareTabProps> = ({ tripId }) => {
             <Button
               variant="outline"
               onClick={() => setIsConfirmRevokeOpen(true)}
-              className="text-rose-600 border-rose-200 hover:bg-rose-50"
+              className="text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40"
             >
               Revoke & Disable Link
             </Button>
