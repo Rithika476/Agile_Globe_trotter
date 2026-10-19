@@ -1,0 +1,26 @@
+# Node modules
+node_modules/
+
+# Local npm cache on D: drive
+.npm-cache/
+
+# Build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
