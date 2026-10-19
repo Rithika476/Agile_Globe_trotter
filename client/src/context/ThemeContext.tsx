@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -25,42 +25,18 @@ function getInitialTheme(): Theme {
   return 'system';
 }
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
-  const [systemIsDark, setSystemIsDark] = useState<boolean>(() => {
-    if (typeof window !== 'undefined' && window.matchMedia) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
+function computeIsDark(theme: Theme): boolean {
+  if (theme === 'dark') return true;
+  if (theme === 'light') return false;
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  return false;
+}
 
-  // Listen to OS theme changes live
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return;
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = (e: MediaQueryListEvent) => {
-      setSystemIsDark(e.matches);
-    };
-
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handler);
-      return () => mediaQuery.removeEventListener('change', handler);
-    } else {
-      // Fallback for older browsers
-      mediaQuery.addListener(handler);
-      return () => mediaQuery.removeListener(handler);
-    }
-  }, []);
-
-  const isDark = useMemo(() => {
-    if (theme === 'dark') return true;
-    if (theme === 'light') return false;
-    return systemIsDark;
-  }, [theme, systemIsDark]);
-
-  // Synchronize DOM classes and color-scheme
-  useEffect(() => {
+function applyThemeToDOM(theme: Theme): boolean {
+  const isDark = computeIsDark(theme);
+  if (typeof document !== 'undefined') {
     const root = document.documentElement;
     if (isDark) {
       root.classList.add('dark');
@@ -69,25 +45,65 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.classList.remove('dark');
       root.style.colorScheme = 'light';
     }
-  }, [isDark]);
+  }
+  return isDark;
+}
+
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
+  const [isDark, setIsDark] = useState<boolean>(() => computeIsDark(theme));
+
+  // Explicitly sync DOM on mount and ensure initial state matches
+  useEffect(() => {
+    const effectiveDark = applyThemeToDOM(theme);
+    setIsDark(effectiveDark);
+  }, []);
+
+  // Listen to OS theme changes live
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => {
+      if (theme === 'system') {
+        const effectiveDark = applyThemeToDOM('system');
+        setIsDark(effectiveDark);
+      }
+    };
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
+    } else {
+      mediaQuery.addListener(handler);
+      return () => mediaQuery.removeListener(handler);
+    }
+  }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
+    // 1. Explicitly ADD 'dark' for dark and REMOVE for light, or compute for system
+    const effectiveDark = applyThemeToDOM(newTheme);
+
+    // 2. Persist choice in localStorage under 'globetrotter_theme'
     try {
       localStorage.setItem(STORAGE_KEY, newTheme);
     } catch {
       // Ignore storage errors
     }
+
+    // 3. Update React states
+    setThemeState(newTheme);
+    setIsDark(effectiveDark);
   };
 
   const toggleTheme = () => {
-    // Cycle: system -> light -> dark -> system
-    if (theme === 'system') {
-      setTheme('light');
-    } else if (theme === 'light') {
+    // Cycle: light -> dark -> system -> light
+    if (theme === 'light') {
       setTheme('dark');
-    } else {
+    } else if (theme === 'dark') {
       setTheme('system');
+    } else {
+      setTheme('light');
     }
   };
 

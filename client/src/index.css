@@ -2,12 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Native control color-scheme */
+/* Native control color-scheme: follows .dark class exclusively */
 :root {
   color-scheme: light;
 }
 
-:root.dark {
+html.dark,
+:root.dark,
+.dark {
   color-scheme: dark;
 }
 
