@@ -18,34 +18,101 @@ export const normalizeDate = (d: Date | string): Date => {
   return date;
 };
 
-// Auto-generate itinerary days for a date range
+/**
+ * Resyncs ItineraryDays with the trip's current destinations:
+ * 1. Loads all destinations sorted by order (0..N-1).
+ * 2. Maps every calendar date covered by a destination to its destination.
+ *    NOTE: If two destinations share a boundary date (transit day), assigning
+ *    in increasing order of destination ensures the later destination (higher order,
+ *    i.e., the city arrived in on that day) is assigned to that date.
+ * 3. Deletes existing days that are no longer covered by any destination ONLY if
+ *    they contain no activities. If activities exist, rejects with a 400 error.
+ * 4. Ensures all activities stay attached to their day; no activities are deleted silently.
+ * 5. Uses ordered operations compatible with a standalone MongoDB (no transactions)
+ *    and respects the unique (trip, date) compound index.
+ */
+export const resyncDays = async (tripId: string | mongoose.Types.ObjectId): Promise<void> => {
+  const tripObjectId = typeof tripId === 'string' ? new mongoose.Types.ObjectId(tripId) : tripId;
+
+  // 1. Load the trip's destinations sorted by order
+  const destinations = await Destination.find({ trip: tripObjectId }).sort({ order: 1 });
+
+  // 2. Build map of expected dates (YYYY-MM-DD -> destination ObjectId)
+  const expectedDayDestinations = new Map<string, mongoose.Types.ObjectId>();
+
+  for (const dest of destinations) {
+    const cur = normalizeDate(dest.arrivalDate);
+    const end = normalizeDate(dest.departureDate);
+
+    while (cur <= end) {
+      const dateKey = cur.toISOString().split('T')[0];
+      // If two destinations share a boundary date, assign it to the later destination
+      // (the city arrived in), as destinations are iterated in ascending order (0..N-1).
+      expectedDayDestinations.set(dateKey, dest._id as mongoose.Types.ObjectId);
+      cur.setUTCDate(cur.getUTCDate() + 1);
+    }
+  }
+
+  // 3. Load existing days for this trip
+  const existingDays = await ItineraryDay.find({ trip: tripObjectId });
+  const existingDaysByDateKey = new Map<string, typeof existingDays[0]>();
+
+  // Check existing days: delete uncovered days if empty, reject if activities exist
+  for (const day of existingDays) {
+    const dateKey = normalizeDate(day.date).toISOString().split('T')[0];
+    existingDaysByDateKey.set(dateKey, day);
+
+    if (!expectedDayDestinations.has(dateKey)) {
+      const activityCount = await Activity.countDocuments({
+        trip: tripObjectId,
+        itineraryDay: day._id,
+      });
+
+      if (activityCount > 0) {
+        throw createError(
+          `Cannot remove destination or shrink dates because activities exist on date ${dateKey}. Please move or delete these activities first.`,
+          400
+        );
+      }
+
+      // No activities exist: safely delete uncovered day
+      await ItineraryDay.findByIdAndDelete(day._id);
+      existingDaysByDateKey.delete(dateKey);
+    }
+  }
+
+  // 4. Ensure each covered date has exactly one ItineraryDay pointing to the correct destination
+  for (const [dateKey, targetDestId] of expectedDayDestinations.entries()) {
+    const existingDay = existingDaysByDateKey.get(dateKey);
+
+    if (existingDay) {
+      // Day already exists: reassign destination if different
+      if (existingDay.destination.toString() !== targetDestId.toString()) {
+        await ItineraryDay.findByIdAndUpdate(existingDay._id, {
+          destination: targetDestId,
+        });
+      }
+    } else {
+      // Day does not exist: create it respecting the unique (trip, date) index
+      const dateObj = new Date(`${dateKey}T00:00:00.000Z`);
+      const newDay = await ItineraryDay.create({
+        trip: tripObjectId,
+        destination: targetDestId,
+        date: dateObj,
+      });
+      existingDaysByDateKey.set(dateKey, newDay);
+    }
+  }
+};
+
+// Backward-compatibility alias
 export const syncItineraryDaysForDestination = async (
   tripId: mongoose.Types.ObjectId,
-  destinationId: mongoose.Types.ObjectId,
-  arrivalDate: Date,
-  departureDate: Date
+  _destinationId: mongoose.Types.ObjectId,
+  _arrivalDate: Date,
+  _departureDate: Date
 ) => {
-  const cur = normalizeDate(arrivalDate);
-  const end = normalizeDate(departureDate);
-
-  while (cur <= end) {
-    const dateCopy = new Date(cur);
-    // Respect unique (trip, date) compound index: do not duplicate
-    const existingDay = await ItineraryDay.findOne({
-      trip: tripId,
-      date: dateCopy,
-    });
-
-    if (!existingDay) {
-      await ItineraryDay.create({
-        trip: tripId,
-        destination: destinationId,
-        date: dateCopy,
-      });
-    }
-
-    cur.setUTCDate(cur.getUTCDate() + 1);
-  }
+  await resyncDays(tripId);
 };
 
 export const getTripDestinations = async (tripId: string, userId: string) => {
@@ -105,8 +172,8 @@ export const createDestination = async (
     order: nextOrder,
   });
 
-  // Automatically generate ItineraryDay records for arrival..departure
-  await syncItineraryDaysForDestination(trip._id, destination._id as mongoose.Types.ObjectId, arrival, departure);
+  // Resync days after create
+  await resyncDays(trip._id);
 
   return destination;
 };
@@ -148,6 +215,46 @@ export const updateDestination = async (
     );
   }
 
+  // Pre-validate that shrinking dates will not orphan any day that has activities
+  if (data.arrivalDate || data.departureDate) {
+    const otherDestinations = await Destination.find({
+      trip: trip._id,
+      _id: { $ne: destination._id },
+    });
+
+    const proposedCoveredDates = new Set<string>();
+    for (const dest of otherDestinations) {
+      const cur = normalizeDate(dest.arrivalDate);
+      const end = normalizeDate(dest.departureDate);
+      while (cur <= end) {
+        proposedCoveredDates.add(cur.toISOString().split('T')[0]);
+        cur.setUTCDate(cur.getUTCDate() + 1);
+      }
+    }
+    const curProp = new Date(arrival);
+    while (curProp <= departure) {
+      proposedCoveredDates.add(curProp.toISOString().split('T')[0]);
+      curProp.setUTCDate(curProp.getUTCDate() + 1);
+    }
+
+    const existingDays = await ItineraryDay.find({ trip: trip._id });
+    for (const day of existingDays) {
+      const dateKey = normalizeDate(day.date).toISOString().split('T')[0];
+      if (!proposedCoveredDates.has(dateKey)) {
+        const actCount = await Activity.countDocuments({
+          trip: trip._id,
+          itineraryDay: day._id,
+        });
+        if (actCount > 0) {
+          throw createError(
+            `Cannot modify destination dates because activities exist on date ${dateKey} which would no longer be covered by any destination. Please delete or move those activities first.`,
+            400
+          );
+        }
+      }
+    }
+  }
+
   if (data.city !== undefined) destination.city = data.city;
   if (data.country !== undefined) destination.country = data.country;
   destination.arrivalDate = arrival;
@@ -155,10 +262,8 @@ export const updateDestination = async (
 
   await destination.save();
 
-  // Sync new days if dates were modified
-  if (data.arrivalDate || data.departureDate) {
-    await syncItineraryDaysForDestination(trip._id, destination._id as mongoose.Types.ObjectId, arrival, departure);
-  }
+  // Resync days after update
+  await resyncDays(trip._id);
 
   return destination;
 };
@@ -178,15 +283,40 @@ export const deleteDestination = async (tripId: string, destinationId: string, u
     throw createError('Destination not found', 404);
   }
 
-  // Delete days linked to this destination and their activities
-  const days = await ItineraryDay.find({ trip: trip._id, destination: destination._id });
-  const dayIds = days.map((d) => d._id);
+  // Pre-validate: Check if deleting this destination will orphan any day with activities
+  const otherDestinations = await Destination.find({
+    trip: trip._id,
+    _id: { $ne: destination._id },
+  });
 
-  if (dayIds.length > 0) {
-    await Activity.deleteMany({ trip: trip._id, itineraryDay: { $in: dayIds } });
-    await ItineraryDay.deleteMany({ _id: { $in: dayIds } });
+  const remainingCoveredDates = new Set<string>();
+  for (const dest of otherDestinations) {
+    const cur = normalizeDate(dest.arrivalDate);
+    const end = normalizeDate(dest.departureDate);
+    while (cur <= end) {
+      remainingCoveredDates.add(cur.toISOString().split('T')[0]);
+      cur.setUTCDate(cur.getUTCDate() + 1);
+    }
   }
 
+  const existingDays = await ItineraryDay.find({ trip: trip._id });
+  for (const day of existingDays) {
+    const dateKey = normalizeDate(day.date).toISOString().split('T')[0];
+    if (!remainingCoveredDates.has(dateKey)) {
+      const actCount = await Activity.countDocuments({
+        trip: trip._id,
+        itineraryDay: day._id,
+      });
+      if (actCount > 0) {
+        throw createError(
+          `Cannot delete destination "${destination.city}" because activities exist on date ${dateKey} which would no longer be covered by any destination. Please delete or move those activities first.`,
+          400
+        );
+      }
+    }
+  }
+
+  // Delete destination
   await Destination.findByIdAndDelete(destination._id);
 
   // Re-sequence remaining destinations contiguous (0..n-1) avoiding index collisions
@@ -197,6 +327,9 @@ export const deleteDestination = async (tripId: string, destinationId: string, u
   for (let i = 0; i < remaining.length; i++) {
     await Destination.findByIdAndUpdate(remaining[i]._id, { order: i });
   }
+
+  // Resync days after delete (removes empty uncovered days, reassigns boundary days if order shifted)
+  await resyncDays(trip._id);
 
   return { success: true, message: 'Destination and its itinerary days removed.' };
 };
@@ -237,6 +370,9 @@ export const reorderDestinations = async (
   for (let i = 0; i < destinationIds.length; i++) {
     await Destination.findByIdAndUpdate(destinationIds[i], { order: i });
   }
+
+  // Resync days after reorder (reassigns shared boundary dates to the new later destination)
+  await resyncDays(trip._id);
 
   return Destination.find({ trip: trip._id }).sort({ order: 1 });
 };

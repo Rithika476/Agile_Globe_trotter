@@ -464,6 +464,175 @@ async function runTests() {
       `Scanned ${allResponsesJsonStrings.length} HTTP response bodies`
     );
 
+    // -------------------------------------------------------------------------
+    // TEST 19: Destination Days Resynchronization & Activity Safety
+    // -------------------------------------------------------------------------
+    // Create dedicated 6-day test trip for User A
+    const resyncTripRes = await request(
+      baseUrl,
+      'POST',
+      '/api/trips',
+      {
+        title: 'Tamil Nadu Itinerary Test',
+        startDate: '2026-11-01T00:00:00.000Z',
+        endDate: '2026-11-06T00:00:00.000Z',
+        estimatedBudget: 25000,
+      },
+      tokenA
+    );
+    const rTripId = resyncTripRes.data?.data?.trip?._id;
+
+    // (a) Chennai 1-6 edited to 1-4 then Ooty 5-6 results in days 1-4 -> Chennai, 5-6 -> Ooty
+    const chennaiCreate = await request(
+      baseUrl,
+      'POST',
+      `/api/trips/${rTripId}/destinations`,
+      {
+        city: 'Chennai',
+        country: 'India',
+        arrivalDate: '2026-11-01T00:00:00.000Z',
+        departureDate: '2026-11-06T00:00:00.000Z',
+      },
+      tokenA
+    );
+    const chennaiId = chennaiCreate.data?.data?.destination?._id;
+
+    // Edit Chennai to 1-4
+    await request(
+      baseUrl,
+      'PUT',
+      `/api/trips/${rTripId}/destinations/${chennaiId}`,
+      {
+        arrivalDate: '2026-11-01T00:00:00.000Z',
+        departureDate: '2026-11-04T00:00:00.000Z',
+      },
+      tokenA
+    );
+
+    // Create Ooty 5-6
+    const ootyCreate = await request(
+      baseUrl,
+      'POST',
+      `/api/trips/${rTripId}/destinations`,
+      {
+        city: 'Ooty',
+        country: 'India',
+        arrivalDate: '2026-11-05T00:00:00.000Z',
+        departureDate: '2026-11-06T00:00:00.000Z',
+      },
+      tokenA
+    );
+    const ootyId = ootyCreate.data?.data?.destination?._id;
+
+    const daysRes19a = await request(baseUrl, 'GET', `/api/trips/${rTripId}/days`, undefined, tokenA);
+    const days19a = daysRes19a.data?.data?.days || [];
+    const test19aPass =
+      days19a.length === 6 &&
+      days19a.slice(0, 4).every((d: any) => d.destination?._id === chennaiId && d.destination?.city === 'Chennai') &&
+      days19a.slice(4, 6).every((d: any) => d.destination?._id === ootyId && d.destination?.city === 'Ooty');
+
+    record(
+      '19a. Chennai 1-6 edited to 1-4 then Ooty 5-6 maps days 1-4 to Chennai and 5-6 to Ooty',
+      test19aPass,
+      `Days: ${days19a.length}, Days 1-4: Chennai, Days 5-6: Ooty`
+    );
+
+    // (b) Deleting Ooty removes its days
+    const delOotyRes = await request(
+      baseUrl,
+      'DELETE',
+      `/api/trips/${rTripId}/destinations/${ootyId}`,
+      undefined,
+      tokenA
+    );
+    const daysRes19b = await request(baseUrl, 'GET', `/api/trips/${rTripId}/days`, undefined, tokenA);
+    const days19b = daysRes19b.data?.data?.days || [];
+    const test19bPass =
+      delOotyRes.status === 200 &&
+      days19b.length === 4 &&
+      days19b.every((d: any) => d.destination?._id === chennaiId);
+
+    record(
+      '19b. Deleting destination removes its uncovered empty days',
+      test19bPass,
+      `Days remaining: ${days19b.length} (expected 4, all Chennai)`
+    );
+
+    // (c) Shared boundary date is assigned to the later destination
+    // Chennai is Nov 1 to Nov 4 (order 0). Add Coonoor Nov 4 to Nov 6 (order 1).
+    const coonoorCreate = await request(
+      baseUrl,
+      'POST',
+      `/api/trips/${rTripId}/destinations`,
+      {
+        city: 'Coonoor',
+        country: 'India',
+        arrivalDate: '2026-11-04T00:00:00.000Z',
+        departureDate: '2026-11-06T00:00:00.000Z',
+      },
+      tokenA
+    );
+    const coonoorId = coonoorCreate.data?.data?.destination?._id;
+
+    const daysRes19c = await request(baseUrl, 'GET', `/api/trips/${rTripId}/days`, undefined, tokenA);
+    const days19c = daysRes19c.data?.data?.days || [];
+    const boundaryDayNov4 = days19c.find((d: any) => d.date.startsWith('2026-11-04'));
+    const test19cPass =
+      coonoorCreate.status === 201 &&
+      boundaryDayNov4?.destination?._id === coonoorId &&
+      boundaryDayNov4?.destination?.city === 'Coonoor';
+
+    record(
+      '19c. Shared boundary date (Nov 4) is assigned to later destination (Coonoor)',
+      test19cPass,
+      `Boundary Nov 4 assigned to: ${boundaryDayNov4?.destination?.city}`
+    );
+
+    // (d) A day with activities is not silently deleted
+    const nov6Day = days19c.find((d: any) => d.date.startsWith('2026-11-06'));
+    const createActRes = await request(
+      baseUrl,
+      'POST',
+      `/api/trips/${rTripId}/days/${nov6Day._id}/activities`,
+      {
+        title: 'Tea Estate Walking Tour',
+        category: 'sightseeing',
+        estimatedCost: 400,
+      },
+      tokenA
+    );
+
+    // Attempt to delete Coonoor: should be rejected with 400 because Nov 6 has an activity
+    const rejectDeleteRes = await request(
+      baseUrl,
+      'DELETE',
+      `/api/trips/${rTripId}/destinations/${coonoorId}`,
+      undefined,
+      tokenA
+    );
+
+    const daysRes19d = await request(baseUrl, 'GET', `/api/trips/${rTripId}/days`, undefined, tokenA);
+    const days19d = daysRes19d.data?.data?.days || [];
+    const preservedNov6Day = days19d.find((d: any) => d.date.startsWith('2026-11-06'));
+    const test19dPass =
+      createActRes.status === 201 &&
+      rejectDeleteRes.status === 400 &&
+      preservedNov6Day !== undefined &&
+      preservedNov6Day.activities?.length === 1 &&
+      preservedNov6Day.activities[0].title === 'Tea Estate Walking Tour';
+
+    record(
+      '19d. A day with activities is not silently deleted (rejection 400 & activity preserved)',
+      test19dPass,
+      `Delete status: ${rejectDeleteRes.status} (expected 400), Activities intact: ${preservedNov6Day?.activities?.length === 1}`
+    );
+
+    // Cleanup test trip
+    await Trip.deleteOne({ _id: rTripId });
+    await Destination.deleteMany({ trip: rTripId });
+    await ItineraryDay.deleteMany({ trip: rTripId });
+    await Activity.deleteMany({ trip: rTripId });
+
     // Cleanup test users
     await User.deleteMany({ email: { $in: [userAData.email, userBData.email] } });
     console.log('\nCleaned up test users from database.');
