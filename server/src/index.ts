@@ -1,6 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Ensure critical security environment variables exist before starting
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is missing. Server refusing to start.');
+  process.exit(1);
+}
+
 import app from './app';
 import { connectDB, disconnectDB } from './config/db';
 
