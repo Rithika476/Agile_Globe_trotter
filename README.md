@@ -1,3 +1,4 @@
+
 # Globe Trotter 🌍 — Personalized Travel Planning Platform
 
 > **Academic Project Note**: Globe Trotter is a full-stack, personalized **travel-PLANNING** web application. It helps travelers design itineraries, structure multi-city destinations, schedule daily activities, analyze trip budgets, and securely share itineraries with travel companions. It is strictly a planning and organizational platform—it is **NOT** a booking engine (no flight/hotel booking, no payment gateways, and no third-party paid APIs).
@@ -371,3 +372,5 @@ In the spirit of honest academic evaluation, the following design boundaries and
 3. **Public Sharing Access Control**: Shared itineraries currently support read-only permissions (`permissions: 'read'`). Collaborative real-time multi-user editing (e.g., via WebSockets) is a natural future enhancement.
 4. **Offline Mode & Caching**: The client relies on an active network connection to the Express API. Future work will introduce a Service Worker with indexedDB local caching to support offline itinerary review in remote travel destinations.
 5. **Asset Storage**: Media and maps currently rely on external URL references. Future iterations can integrate local file storage or S3-compatible object buckets for user photo journaling.
+
+# Agile_Globe_trotter
